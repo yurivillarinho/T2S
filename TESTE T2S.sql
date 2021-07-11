@@ -1,0 +1,196 @@
+O teste consiste em o candidato gravar um vídeo de até 1 h realizando o teste e
+explicando passo a passo do que está fazendo. Para isso será necessário gravar a tela
+do computador e o microfone. O vídeo não deverá conter cortes, não tem nenhum
+problema se, durante o teste, o candidato precisar consultar algum material de apoio ou
+a internet, não será descontado nada da avaliação. O vídeo deverá ser publicado no
+YouTube e o código da aplicação versionado no GitHub.
+O sistema deverá ser uma aplicação WEB, conter um banco de dados estruturado (SQL),
+o back-end deverá ser desenvolvido em JAVA ou C#, a tecnologia utilizada no front-end
+fica a critério do candidato.
+Obs.: Sabemos que o tempo é curto, portanto se não der tempo de completar o teste,
+não tem problema realizar uma entrega parcial porém funcional.
+
+"Crud de Contêiner
+● Cliente
+● Número do contêiner (4 letras e 7 números. Ex: TEST1234567)
+● Tipo: 20 / 40
+● Status: Cheio / Vazio
+● Categoria: Importação / Exportação
+
+Crud de Movimentações
+● Tipo de Movimentação (Embarque, Descarga, Gate In, Gate out, Posicionamento
+Pilha, Pesagem, Scanner)
+● Data e Hora do Início
+● Data e Hora do Fim
+
+Gerar um relatório com o total de movimentações agrupadas por cliente e tipo de
+movimentação.
+No final do relatório deverá conter um sumário com o total de importação / exportação.
+
+Premissas para todos os artefatos:
+● Validações
+● Ordenações
+● Filtros
+
+Peso da avaliação
+● Funcionalidade (Atender o que foi solicitado) - 8
+● Usabilidade e Design (Layout agradável) - 2"
+
+CREATE DATABASE BD_TERMINAL;
+USE BD_TERMINAL;
+
+--CRIAÇÃO DO CONTEINER
+
+CREATE TABLE TB_PAIS(
+	CD_PAIS INT NOT NULL,
+	NM_PAIS VARCHAR(100) NOT NULL,
+	CONSTRAINTS PK_PAIS
+		PRIMARY KEY (CD_PAIS)
+);
+
+CREATE TABLE TB_ESTADO(
+	CD_ESTADO INT NOT NULL,
+	NM_ESTADO VARCHAR (100) NOT NULL,
+	CD_PAIS INT NOT NULL,
+	CONSTRAINTS PK_ESTADO
+		PRIMARY KEY (CD_ESTADO),
+	CONSTRAINT FK_ESTADO_PAIS
+		FOREIGN KEY (CD_PAIS) REFERENCES TB_PAIS (CD_PAIS)
+);
+
+CREATE TABLE TB_CIDADE(
+	CD_CIDADE INT NOT NULL,
+	NM_CIDADE VARCHAR(100) NOT NULL,
+	CD_ESTADO INT NOT NULL,
+	CONSTRAINTS PK_CIDADE
+		PRIMARY KEY (CD_CIDADE),
+	CONSTRAINT FK_CIDADE_ESTADO
+		FOREIGN KEY (CD_ESTADO) REFERENCES TB_ESTADO (CD_ESTADO)
+);
+
+CREATE TABLE TB_ENDERECO(
+	CD_ENDERECO INT NOT NULL,
+	NM_ENDERECO VARCHAR (200) NOT NULL,
+	CD_CIDADE INT NOT NULL,
+	CONSTRAINTS PK_ENDERECO
+		PRIMARY KEY (CD_ENDERECO),
+	CONSTRAINT FK_ENDERECO_CIDADE
+		FOREIGN KEY (CD_CIDADE) REFERENCES TB_CIDADE (CD_CIDADE)
+);
+
+CREATE TABLE CLIENTE(
+	CD_CLIENTE INT NOT NULL,
+	NM_CLIENTE VARCHAR(200) NOT NULL,
+	CD_CNPJ CHAR(14) NOT NULL,
+	CD_ENDERECO INT NOT NULL,
+	CONSTRAINTS PK_CLIENTE
+		PRIMARY KEY (CD_CLIENTE),
+	CONSTRAINT FK_CLIENTE_ENDERECO
+		FOREIGN KEY (CD_CLIENTE) REFERENCES TB_CLIENTE (CD_CLIENTE)	
+);
+
+CREATE TABLE TB_TIPO(
+	CD_TIPO INT NOT NULL,
+	NM_TIPO VARCHAR(50) NOT NULL,
+	CONSTRAINTS PK_TIPO
+		PRIMARY KEY (CD_TIPO)
+);
+
+CREATE TABLE TB_STATUS(
+	CD_STATUS INT NOT NULL,
+	NM_STATUS VARCHAR(50) NOT NULL,
+	CONSTRAINTS PK_STATUS
+		PRIMARY KEY (CD_STATUS)
+);
+
+CREATE TABLE TB_CATEGORIA(
+	CD_CATEGORIA INT NOT NULL,
+	NM_CATEGORIA VARCHAR(50) NOT NULL,
+	CONSTRAINTS PK_CATEGORIA
+		PRIMARY KEY (CD_CATEGORIA)
+);
+
+CREATE TABLE TB_CONTEINER(
+	CD_CLIENTE INT,
+	NM_CONTAINER CHAR(11) NOT NULL,
+	CD_TIPO INT,
+	CD_STATUS INT,
+	CD_CATEGORIA INT
+	CONSTRAINTS PK_CONTEINER
+		PRIMARY KEY (CD_CONTEINER),
+	CONSTRAINT FK_CONTEINER_CLIENTE
+		FOREIGN KEY (CD_CLIENTE) REFERENCES TB_CLIENTE (CD_CLIENTE),
+	CONSTRAINT FK_CONTEINER_TIPO
+		FOREIGN KEY (CD_TIPO) REFERENCES TB_TIPO (CD_TIPO),
+	CONSTRAINT FK_CONTEINER_STATUS
+		FOREIGN KEY (CD_STATUS) REFERENCES TB_STATUS (CD_STATUS),	
+	CONSTRAINT FK_CONTEINER_CATEGORIA
+		FOREIGN KEY (CD_CATEGORIA) REFERENCES TB_CATEGORIA (CD_CATEGORIA)	
+);
+
+--CRIAÇÃO DA MOVIMENTAÇÃO
+
+CREATE TABLE TB_TIPO_MOVIMENTACAO(
+	CD_TIPO_MOVIMENTACAO INT NOT NULL,
+	NM_TIPO_MOVIMENTACAO VARCHAR(50) NOT NULL,
+	CONSTRAINTS PK_TIPO_MOVIMENTACAO
+		PRIMARY KEY (CD_TIPO_MOVIMENTACAO),
+);
+
+CREATE TABLE TB_MOVIMENTACAO(
+	CD_MOVIMENTACAO INT NOT NULL,
+	CD_CONTEINER INT NOT NULL,
+	CD_TIPO_MOVIMENTACAO INT NOT NULL,
+	DT_INICIO DATETIME NOT NULL,
+	DT_FIM DATETIME,
+	CONSTRAINTS PK_MOVIMENTACAO
+		PRIMARY KEY (CD_MOVIMENTACAO),
+	CONSTRAINT FK_MOVIMENTACAO_CONTEINER
+		FOREIGN KEY (CD_CONTEINER) REFERENCES TB_CONTEINER(CD_CONTEINER),
+	CONSTRAINT FK_MOVIMENTACAO_TIPO_MOVIMENTACAO
+		FOREIGN KEY (CD_TIPO_MOVIMENTACAO) REFERENCES TB_TIPO_MOVIMENTACAO (CD_TIPO_MOVIMENTACAO)
+);
+
+--INSERT BASE
+INSERT INTO TB_TIPO_MOVIMENTO VALUES 
+	(1,'EMBARQUE'),
+	(2,'DESCARGA'),
+	(3,'GATE IN'),
+	(4,'GATE OUT'),
+	(5,'POSICIONAMENTO PILHA'),
+	(6,'PESAGEM'),
+	(7,'SCANNER');
+
+INSERT INTO TB_TIPO VALUES 
+	(1,'20'),
+	(2,'40');
+	
+INSERT INTO TB_STATUS VALUES 
+	(1,'CHEIO'),
+	(2,'VAZIO');
+	
+INSERT INTO TB_CATEGORIA VALUES 
+	(1,'IMPORTAÇÃO'),
+	(2,'EXPORTAÇÃO');
+
+--SELECTS
+
+"Gerar um relatório com o total de movimentações agrupadas por cliente e tipo de
+movimentação."
+
+SELECT  B.NM_TIPO_MOVIMENTACAO AS 'MOVIMENTAÇÃO',
+		D.NM_CLIENTE AS CLIENTE,
+		FROM TB_MOVIMENTACAO AS A
+		JOIN TB_TIPO_MOVIMENTACAO AS B
+			ON A.CD_TIPO_MOVIMENTACAO = B.CD_TIPO_MOVIMENTACAO
+		JOIN TB_CONTEINER AS C
+			ON A.CD_CONTEINER = C.CD_CONTEINER
+		JOIN TB_CLIENTE AS D
+			ON C.CD_CLIENTE = D.CD_CLIENTE
+		GROUP BY NM_CLIENTE, NM_TIPO_MOVIMENTACAO;
+		
+"No final do relatório deverá conter um sumário com o total de importação / exportação."
+
+SELECT 	NM_CATEGORIA AS CATEGORIA
+		FROM TB_CONTEINER
+		GROUP BY CD_CATEGORIA;
